@@ -27,13 +27,23 @@ kotlin {
 			implementation("ru.capjack.tool:tool-lang:0.5.0")
 			implementation("ru.capjack.tool:tool-logging:0.14.0")
 		}
+		get("commonTest").dependencies {
+			implementation(kotlin("test-common"))
+			implementation(kotlin("test-annotations-common"))
+		}
 		
 		get("jvmMain").dependencies {
 			implementation(kotlin("stdlib-jdk8"))
 		}
+		get("jvmTest").dependencies {
+			implementation(kotlin("test-junit"))
+		}
 		
 		get("jsMain").dependencies {
 			implementation(kotlin("stdlib-js"))
+		}
+		get("jsTest").dependencies {
+			implementation(kotlin("test-js"))
 		}
 	}
 }

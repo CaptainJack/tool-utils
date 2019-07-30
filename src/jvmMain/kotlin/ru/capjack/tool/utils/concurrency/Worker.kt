@@ -70,7 +70,7 @@ actual open class Worker actual constructor(
 		processQueue()
 	}
 	
-	protected open fun work(task: () -> Unit) {
+	private fun work(task: () -> Unit) {
 		try {
 			task()
 		}

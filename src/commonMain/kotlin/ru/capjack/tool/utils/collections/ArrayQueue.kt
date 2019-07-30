@@ -72,14 +72,14 @@ class ArrayQueue<E>(
 			if (head < tail) {
 				array.copyInto(newArray, 0, head, tail)
 			}
-			else if (head > tail) {
+			else if (head >= tail) {
 				array.copyInto(newArray, 0, head)
-				array.copyInto(newArray, capacity - head + 1, 0, tail)
+				array.copyInto(newArray, capacity - head, 0, tail)
 			}
 			array = newArray
 			capacity = newCapacity
 			head = 0
-			tail = 0
+			tail = _size
 		}
 		else if (min < 0) {
 			throw RuntimeException("Out of memory")

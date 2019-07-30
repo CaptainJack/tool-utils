@@ -2,13 +2,15 @@ package ru.capjack.tool.utils.concurrency
 
 import ru.capjack.tool.lang.asThrowable
 import ru.capjack.tool.logging.ownLogger
+import ru.capjack.tool.utils.CallableFunction0
 import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
-	executor: Executor,
+	private val executor: Executor,
 	private val errorHandler: (Throwable) -> Unit
 ) {
 	private var queue = ArrayQueue<() -> Unit>()
+	private var processQueueTask = CallableFunction0(::processQueue)
 	private var working = false
 	
 	actual val accessible: Boolean
@@ -26,19 +28,25 @@ actual open class Worker actual constructor(
 	}
 	
 	actual fun defer(task: () -> Unit) {
-		if (working) {
-			queue.add(task)
+		queue.add(task)
+		if (!working) {
+			working = true
+			executor.execute(processQueueTask)
 		}
 	}
 	
 	actual fun capture(): Boolean {
-		TODO("not implemented")
+		working = true
+		return true
 	}
 	
 	actual fun release() {
+		if (working) {
+			processQueue()
+		}
 	}
 	
-	protected open fun work(task: () -> Unit) {
+	private fun work(task: () -> Unit) {
 		try {
 			task()
 		}
