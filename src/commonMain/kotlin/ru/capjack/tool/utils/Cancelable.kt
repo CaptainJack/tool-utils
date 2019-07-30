@@ -4,7 +4,7 @@ interface Cancelable {
 	fun cancel()
 	
 	companion object {
-		val FAKE = object : Cancelable {
+		val DUMMY = object : Cancelable {
 			override fun cancel() {}
 		}
 		

@@ -4,7 +4,7 @@ interface Closeable {
 	fun close()
 	
 	companion object {
-		val FAKE = object : Closeable {
+		val DUMMY = object : Closeable {
 			override fun close() {}
 		}
 		

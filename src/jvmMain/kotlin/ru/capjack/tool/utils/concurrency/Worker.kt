@@ -1,14 +1,15 @@
 package ru.capjack.tool.utils.concurrency
 
 import ru.capjack.tool.logging.ownLogger
-import java.util.*
+import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
-	private val executor: Executor
+	private val executor: Executor,
+	private val errorHandler: (Throwable) -> Unit
 ) {
 	
 	private val lock = Any()
-	private val queue = LinkedList<() -> Unit>()
+	private val queue = ArrayQueue<() -> Unit>()
 	
 	@Volatile
 	private var working = false
@@ -73,8 +74,13 @@ actual open class Worker actual constructor(
 		try {
 			task()
 		}
-		catch (e: Throwable) {
-			ownLogger.error("Uncaught exception", e)
+		catch (t: Throwable) {
+			try {
+				errorHandler(t)
+			}
+			catch (e: Throwable) {
+				ownLogger.error("Uncaught error", e)
+			}
 		}
 	}
 	

@@ -3,7 +3,10 @@ package ru.capjack.tool.utils.concurrency
 import ru.capjack.tool.utils.Cancelable
 import java.util.concurrent.ExecutorService
 
-internal open class ExecutorImpl<S : ExecutorService>(protected val service: S) : Executor {
+open class ExecutorImpl(
+	private val service: ExecutorService
+) : Executor {
+	
 	override fun execute(fn: () -> Unit) {
 		service.execute(fn)
 	}

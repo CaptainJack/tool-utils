@@ -4,7 +4,7 @@ interface Stoppable {
 	fun stop()
 	
 	companion object {
-		val FAKE = object : Stoppable {
+		val DUMMY = object : Stoppable {
 			override fun stop() {}
 		}
 		
