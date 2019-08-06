@@ -1,5 +1,7 @@
 package ru.capjack.tool.utils.collections
 
+import ru.capjack.tool.lang.fill
+
 class ArrayQueue<E>(
 	initialCapacity: Int = 10
 ) : Queue<E>, AbstractList<E>() {
@@ -17,11 +19,7 @@ class ArrayQueue<E>(
 		_size = 0
 		head = 0
 		tail = 0
-		var i = 0
-		array.copyOf()
-		while (i < _size) {
-			array[i++] = null
-		}
+		array.fill(null)
 	}
 	
 	override fun add(element: E): Boolean {

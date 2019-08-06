@@ -1,15 +1,17 @@
 package ru.capjack.tool.utils.concurrency
 
 import org.w3c.dom.WindowOrWorkerGlobalScope
-import ru.capjack.tool.lang.asThrowable
-import ru.capjack.tool.logging.ownLogger
 import ru.capjack.tool.utils.Callable
 import ru.capjack.tool.utils.CallableFunction0
 import ru.capjack.tool.utils.Cancelable
 import ru.capjack.tool.utils.CancelableCallable
+import ru.capjack.tool.utils.ErrorCatcher
+import ru.capjack.tool.utils.InstantTime
 import ru.capjack.tool.utils.collections.ArrayQueue
 
 open class WgsExecutor(
+	private val errorCatcher: ErrorCatcher,
+	private val instantTime: InstantTime,
 	protected val wgs: WindowOrWorkerGlobalScope
 ) : Executor {
 	
@@ -59,17 +61,20 @@ open class WgsExecutor(
 	}
 	
 	private fun run() {
+		val startTime = instantTime.now()
 		var i = 0
 		val l = queue.size
 		
-		while (i < l) {
+		do {
 			try {
-				queue[i++].call()
+				queue.poll()!!.call()
 			}
 			catch (e: dynamic) {
 				catchError(e)
 			}
+			++i
 		}
+		while (i < l && instantTime.now() - startTime >= 20.0)
 		
 		if (queue.isEmpty()) {
 			deactivate()
@@ -77,6 +82,6 @@ open class WgsExecutor(
 	}
 	
 	protected fun catchError(e: dynamic) {
-		ownLogger.error("Uncaught error", asThrowable(e))
+		errorCatcher.catch(e)
 	}
 }

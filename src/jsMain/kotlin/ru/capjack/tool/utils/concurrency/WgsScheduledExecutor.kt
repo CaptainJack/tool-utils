@@ -5,10 +5,14 @@ import ru.capjack.tool.utils.Callable
 import ru.capjack.tool.utils.CallableFunction0
 import ru.capjack.tool.utils.Cancelable
 import ru.capjack.tool.utils.CancelableCallable
+import ru.capjack.tool.utils.ErrorCatcher
+import ru.capjack.tool.utils.InstantTime
 
-class WgsScheduledExecutor(
+class WgsScheduledExecutor<WGS>(
+	errorCatcher: ErrorCatcher,
+	instantTime: InstantTime,
 	wgs: WindowOrWorkerGlobalScope
-) : WgsExecutor(wgs), ScheduledExecutor {
+) : WgsExecutor(errorCatcher, instantTime, wgs), ScheduledExecutor {
 	
 	override fun schedule(delayMillis: Int, fn: () -> Unit): Cancelable {
 		return schedule(delayMillis, CallableFunction0(fn))
