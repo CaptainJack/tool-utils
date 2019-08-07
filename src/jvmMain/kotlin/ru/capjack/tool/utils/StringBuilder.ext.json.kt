@@ -1,7 +1,7 @@
 package ru.capjack.tool.utils
 
 fun StringBuilder.appendJsonValue(v: Any?): StringBuilder {
-	when (v) {
+	return when (v) {
 		is Number       -> appendJsonValue(v.toString())
 		is String       -> appendJsonValue(v)
 		is Iterable<*>  -> appendJsonValue(v)
@@ -15,11 +15,13 @@ fun StringBuilder.appendJsonValue(v: Any?): StringBuilder {
 		is Enum<*>      -> appendJsonValue(v.name)
 		else            -> append(v.toString())
 	}
-	return this
 }
 
 fun StringBuilder.appendJsonValue(v: String): StringBuilder {
-	append('"')
+	return append('"').appendJsonEscapedString(v).append('"')
+}
+
+fun StringBuilder.appendJsonEscapedString(v: String): StringBuilder {
 	for (c in v) {
 		when (c) {
 			'"'      -> append("\\\"")
@@ -36,7 +38,6 @@ fun StringBuilder.appendJsonValue(v: String): StringBuilder {
 					append(c)
 		}
 	}
-	append('"')
 	return this
 }
 
