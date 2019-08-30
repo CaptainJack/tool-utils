@@ -12,50 +12,53 @@ actual open class Worker actual constructor(
 	private val queue = ArrayQueue<() -> Unit>()
 	
 	@Volatile
-	private var working = false
+	private var _working = false
 	@Volatile
 	private var workingThread: Long = -1
+	@Volatile
+	private var _relaxed = true
 	
-	private val assignTask = Runnable {
-		assignWorkingThread()
-		processQueue()
-	}
+	private val nextTaskFn = Runnable { nextTask() }
+	
+	actual val working: Boolean
+		get() = _working
 	
 	actual val accessible: Boolean
 		get() = workingThread == defineCurrentThread()
 	
+	actual val relaxed: Boolean
+		get() = _relaxed
+	
 	actual fun execute(task: () -> Unit) {
 		synchronized(lock) {
-			if (working) {
+			if (_working) {
+				_relaxed = false
 				queue.add(task)
 				return
 			}
-			working = true
+			_working = true
 		}
-		
-		assignWorkingThread()
 		work(task)
-		processQueue()
 	}
 	
 	actual fun defer(task: () -> Unit) {
 		synchronized(lock) {
+			_relaxed = false
 			queue.add(task)
-			if (working) {
+			if (_working) {
 				return
 			}
-			working = true
+			_working = true
 		}
-		
-		executor.execute(assignTask)
+		scheduleNextTask()
 	}
 	
 	actual fun capture(): Boolean {
 		synchronized(lock) {
-			if (working) {
+			if (_working) {
 				return accessible
 			}
-			working = true
+			_working = true
 		}
 		assignWorkingThread()
 		return true
@@ -63,14 +66,16 @@ actual open class Worker actual constructor(
 	
 	actual fun release() {
 		synchronized(lock) {
-			if (!working || !accessible) {
+			if (!_working || !accessible) {
 				return
 			}
 		}
-		processQueue()
+		loseWorkingThread()
+		scheduleNextTask()
 	}
 	
 	private fun work(task: () -> Unit) {
+		assignWorkingThread()
 		try {
 			task()
 		}
@@ -82,23 +87,27 @@ actual open class Worker actual constructor(
 				ownLogger.error("Uncaught error", e)
 			}
 		}
+		loseWorkingThread()
+		scheduleNextTask()
 	}
 	
-	private fun processQueue() {
-		while (true) {
-			val task: () -> Unit
-			synchronized(lock) {
-				queue.poll().also {
-					if (it == null) {
-						loseWorkingThread()
-						working = false
-						return
-					}
-					task = it
+	private fun scheduleNextTask() {
+		executor.execute(nextTaskFn)
+	}
+	
+	private fun nextTask() {
+		val task: () -> Unit
+		synchronized(lock) {
+			queue.poll().also {
+				if (it == null) {
+					_working = false
+					return
 				}
+				task = it
 			}
-			work(task)
+			_relaxed = queue.isEmpty()
 		}
+		work(task)
 	}
 	
 	private fun defineCurrentThread(): Long {

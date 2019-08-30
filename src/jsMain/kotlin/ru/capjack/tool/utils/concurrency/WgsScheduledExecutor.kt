@@ -8,7 +8,7 @@ import ru.capjack.tool.utils.CancelableCallable
 import ru.capjack.tool.utils.ErrorCatcher
 import ru.capjack.tool.utils.InstantTime
 
-class WgsScheduledExecutor<WGS>(
+class WgsScheduledExecutor(
 	errorCatcher: ErrorCatcher,
 	instantTime: InstantTime,
 	wgs: WindowOrWorkerGlobalScope

@@ -2,47 +2,52 @@ package ru.capjack.tool.utils.concurrency
 
 import ru.capjack.tool.lang.asThrowable
 import ru.capjack.tool.logging.ownLogger
-import ru.capjack.tool.utils.CallableFunction0
 import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
 	private val executor: Executor,
 	private val errorHandler: (Throwable) -> Unit
 ) {
+	private var _working = false
 	private var queue = ArrayQueue<() -> Unit>()
-	private var processQueueTask = CallableFunction0(::processQueue)
-	private var working = false
+	private val nextTaskFn = ::nextTask
+	
+	actual val working: Boolean
+		get() = _working
 	
 	actual val accessible: Boolean
-		get() = working
+		get() = _working
+	
+	actual val relaxed: Boolean
+		get() = queue.isEmpty()
+	
 	
 	actual fun execute(task: () -> Unit) {
-		if (working) {
+		if (_working) {
 			queue.add(task)
 		}
 		else {
-			working = true
+			_working = true
 			work(task)
-			processQueue()
 		}
 	}
 	
 	actual fun defer(task: () -> Unit) {
 		queue.add(task)
-		if (!working) {
-			working = true
-			executor.execute(processQueueTask)
+		if (!_working) {
+			_working = true
+			scheduleNextTask()
 		}
 	}
 	
 	actual fun capture(): Boolean {
-		working = true
+		_working = true
 		return true
 	}
 	
 	actual fun release() {
-		if (working) {
-			processQueue()
+		if (_working) {
+			scheduleNextTask()
 		}
 	}
 	
@@ -58,16 +63,19 @@ actual open class Worker actual constructor(
 				ownLogger.error("Uncaught error", asThrowable(e))
 			}
 		}
+		scheduleNextTask()
 	}
 	
-	private fun processQueue() {
-		while (true) {
-			val task = queue.poll()
-			if (task == null) {
-				working = false
-				break
-			}
-			work(task)
+	private fun scheduleNextTask() {
+		executor.execute(nextTaskFn)
+	}
+	
+	private fun nextTask() {
+		val task = queue.poll()
+		if (task == null) {
+			_working = false
+			return
 		}
+		work(task)
 	}
 }

@@ -22,8 +22,14 @@ inline fun Worker.access(action: () -> Unit): Boolean {
 	}
 }
 
-fun Worker.accessOrDefer(action: () -> Unit) {
+inline fun Worker.accessOrExecute(crossinline action: () -> Unit) {
 	access(action).alsoElse {
-		defer(action)
+		execute { action() }
+	}
+}
+
+inline fun Worker.accessOrDefer(crossinline action: () -> Unit) {
+	access(action).alsoElse {
+		defer { action() }
 	}
 }
