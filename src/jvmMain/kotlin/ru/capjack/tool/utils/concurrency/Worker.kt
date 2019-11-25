@@ -5,7 +5,7 @@ import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
 	private val executor: Executor,
-	private val errorHandler: (Throwable) -> Unit
+	val errorHandler: (Throwable) -> Unit
 ) {
 	
 	private val lock = Any()
@@ -74,19 +74,23 @@ actual open class Worker actual constructor(
 		scheduleNextTask()
 	}
 	
-	private fun work(task: () -> Unit) {
-		assignWorkingThread()
+	actual inline fun protect(task: () -> Unit) {
 		try {
 			task()
 		}
 		catch (t: Throwable) {
 			try {
-				errorHandler(t)
+				errorHandler.invoke(t)
 			}
 			catch (e: Throwable) {
 				ownLogger.error("Uncaught error", e)
 			}
 		}
+	}
+	
+	private fun work(task: () -> Unit) {
+		assignWorkingThread()
+		protect(task)
 		loseWorkingThread()
 		scheduleNextTask()
 	}

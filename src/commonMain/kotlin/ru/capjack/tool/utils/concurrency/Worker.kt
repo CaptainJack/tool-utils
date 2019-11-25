@@ -14,4 +14,6 @@ expect open class Worker(executor: Executor, errorHandler: (Throwable) -> Unit) 
 	fun capture(): Boolean
 	
 	fun release()
+	
+	inline fun protect(task: () -> Unit)
 }

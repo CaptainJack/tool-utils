@@ -1,11 +1,10 @@
 package ru.capjack.tool.utils.concurrency
 
-import ru.capjack.tool.lang.alsoElse
 import ru.capjack.tool.lang.alsoIf
 
 inline fun LivingWorker.accessOnLive(action: () -> Unit): Boolean {
 	return (alive && accessible).alsoIf {
-		action()
+		protect(action)
 	}
 }
 
@@ -42,7 +41,7 @@ fun LivingWorker.captureOnLive(): Boolean {
 inline fun LivingWorker.withCaptureOnLive(action: () -> Unit): Boolean {
 	if (captureOnLive()) {
 		try {
-			action()
+			protect(action)
 		}
 		finally {
 			release()
@@ -55,7 +54,7 @@ inline fun LivingWorker.withCaptureOnLive(action: () -> Unit): Boolean {
 inline fun LivingWorker.accessOrExecuteOnLive(crossinline action: () -> Unit) {
 	if (alive) {
 		if (accessible) {
-			action()
+			protect(action)
 		}
 		else {
 			execute {
@@ -70,7 +69,7 @@ inline fun LivingWorker.accessOrExecuteOnLive(crossinline action: () -> Unit) {
 inline fun LivingWorker.accessOrExecuteOnLive(onAccess: () -> Unit, crossinline onExecute: () -> Unit) {
 	if (alive) {
 		if (accessible) {
-			onAccess()
+			protect(onAccess)
 		}
 		else {
 			execute {
@@ -85,7 +84,7 @@ inline fun LivingWorker.accessOrExecuteOnLive(onAccess: () -> Unit, crossinline 
 inline fun LivingWorker.accessOrDeferOnLive(crossinline action: () -> Unit) {
 	if (alive) {
 		if (accessible) {
-			action()
+			protect(action)
 		}
 		else {
 			defer {
@@ -100,7 +99,7 @@ inline fun LivingWorker.accessOrDeferOnLive(crossinline action: () -> Unit) {
 inline fun LivingWorker.accessOrDeferOnLive(onAccess: () -> Unit, crossinline onExecute: () -> Unit) {
 	if (alive) {
 		if (accessible) {
-			onAccess()
+			protect(onAccess)
 		}
 		else {
 			defer {

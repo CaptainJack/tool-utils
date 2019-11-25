@@ -6,7 +6,7 @@ import ru.capjack.tool.lang.alsoIf
 inline fun Worker.withCapture(action: () -> Unit): Boolean {
 	if (capture()) {
 		try {
-			action()
+			protect(action)
 		}
 		finally {
 			release()
@@ -18,7 +18,7 @@ inline fun Worker.withCapture(action: () -> Unit): Boolean {
 
 inline fun Worker.access(action: () -> Unit): Boolean {
 	return accessible.alsoIf {
-		action()
+		protect(action)
 	}
 }
 
