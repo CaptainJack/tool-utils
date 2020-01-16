@@ -2,7 +2,7 @@ package ru.capjack.tool.utils.concurrency
 
 import kotlin.jvm.Volatile
 
-class LivingWorker(executor: Executor, errorHandler: (Throwable) -> Unit) : Worker(executor, errorHandler) {
+class LivingWorker(assistant: Assistant, errorHandler: (Throwable) -> Unit) : Worker(assistant, errorHandler) {
 	@Volatile
 	private var _alive = true
 	

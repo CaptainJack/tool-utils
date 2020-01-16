@@ -1,10 +1,11 @@
 package ru.capjack.tool.utils.concurrency
 
+import ru.capjack.tool.lang.alsoIf
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
 
-class Highway(opened: Boolean) {
+class Sluice(opened: Boolean = true) {
 	private val lock = ReentrantReadWriteLock()
 	
 	@Volatile
@@ -15,30 +16,22 @@ class Highway(opened: Boolean) {
 		get() = lock.readLock()
 	
 	fun open(): Boolean {
-		lock.writeLock().withLock {
-			if (!opened) {
-				opened = true
-				return true
-			}
+		return lock.writeLock().withLock {
+			alsoIf(!opened) { opened = true }
 		}
-		return false
 	}
 	
 	fun close(): Boolean {
-		lock.writeLock().withLock {
-			if (opened) {
-				opened = false
-				return true
-			}
+		return lock.writeLock().withLock {
+			alsoIf(opened) { opened = false }
 		}
-		return false
 	}
 	
-	inline fun drive(block: () -> Unit): Boolean {
+	inline fun pass(code: () -> Unit): Boolean {
 		if (opened) {
 			passage.withLock {
 				if (opened) {
-					block()
+					code()
 					return true
 				}
 			}

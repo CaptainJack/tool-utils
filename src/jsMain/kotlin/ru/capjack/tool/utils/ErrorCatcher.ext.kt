@@ -5,15 +5,7 @@ inline fun ErrorCatcher.protect(code: () -> Unit) {
 		code()
 	}
 	catch (e: dynamic) {
-		catch(e)
-	}
-}
-
-inline fun <R> ErrorCatcher.watch(code: () -> R): R {
-	try {
-		return code()
-	}
-	catch (e: dynamic) {
-		throw catch(e)
+		@Suppress("ThrowableNotThrown")
+		catchError(e)
 	}
 }

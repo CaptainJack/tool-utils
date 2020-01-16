@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.concurrency
 
-expect open class Worker(executor: Executor, errorHandler: (Throwable) -> Unit) {
+expect open class Worker(assistant: Assistant, errorHandler: (Throwable) -> Unit) {
 	val working: Boolean
 	
 	val accessible: Boolean

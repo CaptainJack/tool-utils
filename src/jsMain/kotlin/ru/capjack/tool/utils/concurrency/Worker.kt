@@ -5,11 +5,12 @@ import ru.capjack.tool.logging.ownLogger
 import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
-	private val executor: Executor,
-	val errorHandler: (Throwable) -> Unit
+	private val assistant: Assistant,
+	private val errorHandler: (Throwable) -> Unit
 ) {
 	private var _working = false
 	private var queue = ArrayQueue<() -> Unit>()
+	private var errorCatching = false
 	private val nextTaskFn = ::nextTask
 	
 	actual val working: Boolean
@@ -55,33 +56,34 @@ actual open class Worker actual constructor(
 		try {
 			task()
 		}
-		catch (t: Throwable) {
+		catch (e: dynamic) {
+			catchError(asThrowable(e))
+		}
+	}
+	
+	fun catchError(error: Throwable) {
+		if (errorCatching) {
+			ownLogger.error("Nested error", error)
+		}
+		else {
+			errorCatching = true
 			try {
-				errorHandler.invoke(t)
+				errorHandler.invoke(error)
 			}
 			catch (e: Throwable) {
-				ownLogger.error("Uncaught error", e)
+				ownLogger.error("Nested error on catching", asThrowable(e))
 			}
+			errorCatching = false
 		}
 	}
 	
 	private fun work(task: () -> Unit) {
-		try {
-			task()
-		}
-		catch (t: dynamic) {
-			try {
-				errorHandler(asThrowable(t))
-			}
-			catch (e: dynamic) {
-				ownLogger.error("Uncaught error", asThrowable(e))
-			}
-		}
+		protect(task)
 		scheduleNextTask()
 	}
 	
 	private fun scheduleNextTask() {
-		executor.execute(nextTaskFn)
+		assistant.execute(nextTaskFn)
 	}
 	
 	private fun nextTask() {

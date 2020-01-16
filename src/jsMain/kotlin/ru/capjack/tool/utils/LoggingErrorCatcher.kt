@@ -9,9 +9,9 @@ class LoggingErrorCatcher(
 	private val logger: Logger = Logging.getLogger<LoggingErrorCatcher>()
 ) : ErrorCatcher {
 	
-	override val catchFunction = ::catch
+	override val catchErrorFunction = ::catchError
 	
-	override fun catch(error: dynamic): Throwable {
+	override fun catchError(error: dynamic): Throwable {
 		return asThrowable(error).also {
 			logger.error("Uncaught error", it)
 		}

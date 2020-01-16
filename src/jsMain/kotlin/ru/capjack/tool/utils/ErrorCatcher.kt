@@ -1,7 +1,7 @@
 package ru.capjack.tool.utils
 
 interface ErrorCatcher {
-	val catchFunction: (dynamic) -> Throwable
+	val catchErrorFunction: (dynamic) -> Throwable
 	
-	fun catch(error: dynamic): Throwable
+	fun catchError(error: dynamic): Throwable
 }
