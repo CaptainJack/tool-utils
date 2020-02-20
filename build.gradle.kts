@@ -15,7 +15,7 @@ repositories {
 
 kotlin {
 	jvm {
-		compilations.all { kotlinOptions.jvmTarget = "1.8" }
+		compilations.all { kotlinOptions.jvmTarget = "11" }
 	}
 	js {
 		compilations.all { kotlinOptions.sourceMap = false }

@@ -5,7 +5,16 @@ inline fun ErrorCatcher.protect(code: () -> Unit) {
 		code()
 	}
 	catch (e: dynamic) {
-		@Suppress("ThrowableNotThrown")
 		catchError(e)
+	}
+}
+
+inline fun ErrorCatcher.protect(code: () -> Unit, catch: () -> Unit) {
+	try {
+		code()
+	}
+	catch (e: dynamic) {
+		catchError(e)
+		catch()
 	}
 }

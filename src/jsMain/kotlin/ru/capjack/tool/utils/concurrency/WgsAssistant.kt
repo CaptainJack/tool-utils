@@ -67,7 +67,6 @@ open class WgsAssistant(
 	}
 	
 	protected fun catchError(e: dynamic) {
-		@Suppress("ThrowableNotThrown")
 		errorCatcher.catchError(e)
 	}
 }
