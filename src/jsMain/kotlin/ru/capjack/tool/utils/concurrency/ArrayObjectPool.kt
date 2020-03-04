@@ -10,6 +10,8 @@ actual class ArrayObjectPool<T : Any> actual constructor(
 	private var size = 0
 	
 	override fun take(): T {
+		List(1) {}
+		
 		if (size == 0) {
 			return produceInstance()
 		}
