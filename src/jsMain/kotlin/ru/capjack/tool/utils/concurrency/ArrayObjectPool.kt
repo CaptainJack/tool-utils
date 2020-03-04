@@ -1,16 +1,16 @@
 package ru.capjack.tool.utils.concurrency
 
 actual class ArrayObjectPool<T : Any> actual constructor(
-	allocator: ObjectAllocator<T>,
-	capacity: Int
+	capacity: Int,
+	allocator: ObjectAllocator<T>
 
-) : ObjectPool<T>, AbstractArrayObjectPool<T>(allocator, capacity) {
+) : ObjectPool<T>, AbstractArrayObjectPool<T>(capacity, allocator) {
 	
 	private val instances = arrayOfNulls<Any?>(capacity)
 	private var size = 0
 	
 	override fun take(): T {
-		if (size == -1) {
+		if (size == 0) {
 			return produceInstance()
 		}
 		
@@ -18,8 +18,6 @@ actual class ArrayObjectPool<T : Any> actual constructor(
 		
 		val instance = instances[i].unsafeCast<T>()
 		instances[i] = null
-		
-		clearInstance(instance)
 		
 		return instance
 	}
@@ -29,6 +27,7 @@ actual class ArrayObjectPool<T : Any> actual constructor(
 			disposeInstance(instance)
 		}
 		else {
+			clearInstance(instance)
 			instances[size++] = instance
 		}
 	}

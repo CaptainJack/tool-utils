@@ -40,7 +40,7 @@ class TestArrayObjectPool {
 		
 		val tasks = 100
 		val times = 10
-		val pool = ArrayObjectPool(allocator, 64)
+		val pool = ArrayObjectPool(64, allocator)
 		val executor = Executors.newFixedThreadPool(10)
 		
 		repeat(tasks) {
@@ -61,18 +61,16 @@ class TestArrayObjectPool {
 		executor.awaitTermination(10, TimeUnit.SECONDS)
 		pool.clear()
 		
-		/*
+		
 		println("creates $creates")
 		println("disposes $disposes")
 		println("uses $uses")
 		println("clears $clears")
-		*/
 		
 		val expectedUses = tasks * times
-		val expectedClears = expectedUses - creates.get()
 		
 		assertEquals(creates.get(), disposes.get(), "Creates and disposes")
 		assertEquals(expectedUses, uses.get(), "Uses")
-		assertEquals(expectedClears, clears.get(), "Clears")
+		assertEquals(uses.get(), clears.get(), "Clears")
 	}
 }

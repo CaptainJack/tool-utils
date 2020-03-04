@@ -1,3 +1,3 @@
 package ru.capjack.tool.utils.concurrency
 
-expect class ArrayObjectPool<T : Any>(allocator: ObjectAllocator<T>, capacity: Int) : ObjectPool<T>
+expect class ArrayObjectPool<T : Any>(capacity: Int, allocator: ObjectAllocator<T>) : ObjectPool<T>

@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.concurrency
 
-abstract class AbstractArrayObjectPool<T : Any>(allocator: ObjectAllocator<T>, protected val capacity: Int) : AbstractObjectPool<T>(allocator) {
+abstract class AbstractArrayObjectPool<T : Any>(protected val capacity: Int, allocator: ObjectAllocator<T>) : AbstractObjectPool<T>(allocator) {
 	init {
 		require(capacity > 0)
 	}

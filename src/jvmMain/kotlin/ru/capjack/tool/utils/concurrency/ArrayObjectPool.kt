@@ -4,9 +4,9 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater
 import java.util.concurrent.atomic.AtomicReferenceArray
 
 actual class ArrayObjectPool<T : Any> actual constructor(
-	allocator: ObjectAllocator<T>,
-	capacity: Int
-) : ObjectPool<T>, AbstractArrayObjectPool<T>(allocator, capacity) {
+	capacity: Int,
+	allocator: ObjectAllocator<T>
+) : ObjectPool<T>, AbstractArrayObjectPool<T>(capacity, allocator) {
 	
 	@Volatile
 	private var top: Long = 23L
@@ -21,10 +21,11 @@ actual class ArrayObjectPool<T : Any> actual constructor(
 	}
 	
 	override fun take(): T {
-		return tryPop()?.also(::clearInstance) ?: produceInstance()
+		return tryPop() ?: produceInstance()
 	}
 	
 	override fun back(instance: T) {
+		clearInstance(instance)
 		if (!tryPush(instance)) {
 			disposeInstance(instance)
 		}
