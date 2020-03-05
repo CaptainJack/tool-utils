@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-abstract class AbstractPrimitiveArrayList<E> : PrimitiveArrayList<E>, AbstractList<E>() {
+abstract class AbstractPrimitiveArrayList<E> : AbstractList<E>(), PrimitiveArrayList<E>, RandomAccess {
 	override fun get(index: Int): E {
 		checkIndex(index)
 		return get0(index)
