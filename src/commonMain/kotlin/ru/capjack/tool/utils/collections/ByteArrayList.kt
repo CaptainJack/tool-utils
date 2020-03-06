@@ -1,7 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-open class ByteArrayList(private val array: ByteArray) : AbstractPrimitiveArrayList<Byte>() {
-	
+open class ByteArrayList(array: ByteArray) : AbstractPrimitiveArrayList<Byte, ByteArray>(array) {
 	constructor(size: Int) : this(ByteArray(size))
 	
 	override val size: Int

@@ -1,7 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-open class LongArrayList(private val array: LongArray) : AbstractPrimitiveArrayList<Long>() {
-	
+open class LongArrayList(array: LongArray) : AbstractPrimitiveArrayList<Long, LongArray>(array) {
 	constructor(size: Int) : this(LongArray(size))
 	
 	override val size: Int

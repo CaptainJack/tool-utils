@@ -1,7 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-open class DoubleArrayList(private val array: DoubleArray) : AbstractPrimitiveArrayList<Double>() {
-	
+open class DoubleArrayList(array: DoubleArray) : AbstractPrimitiveArrayList<Double, DoubleArray>(array) {
 	constructor(size: Int) : this(DoubleArray(size))
 	
 	override val size: Int

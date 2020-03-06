@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-abstract class AbstractPrimitiveArrayList<E> : AbstractList<E>(), PrimitiveArrayList<E>, RandomAccess {
+abstract class AbstractPrimitiveArrayList<E, A>(protected val array: A) : AbstractList<E>(), PrimitiveArrayList<E>, RandomAccess {
 	override fun get(index: Int): E {
 		checkIndex(index)
 		return get0(index)
@@ -16,4 +16,9 @@ abstract class AbstractPrimitiveArrayList<E> : AbstractList<E>(), PrimitiveArray
 	protected abstract fun get0(index: Int): E
 	
 	protected abstract fun set0(index: Int, element: E)
+	
+	override fun <T> getSourceArray(): T {
+		@Suppress("UNCHECKED_CAST")
+		return array as T
+	}
 }

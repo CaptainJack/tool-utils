@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.collections
 
-open class BooleanArrayList(private val array: BooleanArray) : AbstractPrimitiveArrayList<Boolean>() {
+open class BooleanArrayList(array: BooleanArray) : AbstractPrimitiveArrayList<Boolean, BooleanArray>(array) {
 	constructor(size: Int) : this(BooleanArray(size))
 	
 	override val size: Int
