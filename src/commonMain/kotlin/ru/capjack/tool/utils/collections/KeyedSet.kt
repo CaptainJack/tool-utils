@@ -1,7 +1,7 @@
 package ru.capjack.tool.utils.collections
 
 interface KeyedSet<in K : Any, out E : Any> : Set<E> {
-	fun get(key: K): E?
+	operator fun get(key: K): E?
 	
 	fun containsKey(key: K): Boolean
 }
@@ -9,33 +9,80 @@ interface KeyedSet<in K : Any, out E : Any> : Set<E> {
 interface MutableKeyedSet<in K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E>
 
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <K : Any, E : Any> keyedSet(noinline keyer: (E) -> K): KeyedSet<K, E> = HashMapMutableKeyedSet(keyer)
+fun <K : Any, E : Any> emptyKeyedSet(): KeyedSet<K, E> {
+	@Suppress("UNCHECKED_CAST")
+	return EmptyKeyedSet as KeyedSet<K, E>
+}
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <K : Any, E : Any> mutableKeyedSet(noinline keyer: (E) -> K): MutableKeyedSet<K, E> = HashMapMutableKeyedSet(keyer)
+fun <K : Any, E : Any> keyedSetOf(@Suppress("UNUSED_PARAMETER") keyer: (E) -> K): KeyedSet<K, E> {
+	return emptyKeyedSet()
+}
 
+fun <K : Any, E : Any> keyedSetOf(keyer: (E) -> K, vararg elements: E): KeyedSet<K, E> {
+	return MapKeyedSet(keyer, elementsToHashMap(keyer, elements))
+}
 
-abstract class AbstractMutableKeyedSet<in K : Any, E : Any>(private val keyer: (E) -> K) : MutableKeyedSet<K, E> {
-	override fun contains(element: E): Boolean {
-		return containsKey(keyer(element))
+fun <K : Any, E : Any> mutableKeyedSetOf(keyer: (E) -> K): MutableKeyedSet<K, E> {
+	return MapMutableKeyedSet(keyer, HashMap())
+}
+
+fun <K : Any, E : Any> mutableKeyedSetOf(keyer: (E) -> K, vararg elements: E): MutableKeyedSet<K, E> {
+	return MapMutableKeyedSet(keyer, elementsToHashMap(keyer, elements))
+}
+
+private fun <K : Any, E : Any> elementsToHashMap(keyer: (E) -> K, elements: Array<out E>): HashMap<K, E> {
+	return HashMap<K, E>(elements.size).also { m ->
+		elements.forEach { m[keyer(it)] = it }
 	}
-	
-	override fun add(element: E): Boolean {
-		return doAdd(keyer(element), element)
-	}
-	
-	override fun remove(element: E): Boolean {
-		return doRemove(keyer(element))
-	}
-	
-	protected abstract fun doAdd(key: K, element: E): Boolean
-	
-	protected abstract fun doRemove(key: K): Boolean
 }
 
 
-open class MapMutableKeyedSet<in K : Any, E : Any>(keyer: (E) -> K, private val map: MutableMap<K, E>) : AbstractMutableKeyedSet<K, E>(keyer) {
+private object EmptyKeyedSet : KeyedSet<Nothing, Nothing> {
+	override val size: Int get() = 0
+	override fun isEmpty(): Boolean = true
+	override fun get(key: Nothing): Nothing? = null
+	override fun containsKey(key: Nothing): Boolean = false
+	override fun contains(element: Nothing): Boolean = false
+	override fun containsAll(elements: Collection<Nothing>): Boolean = false
+	override fun iterator(): Iterator<Nothing> = emptyList<Nothing>().iterator()
+}
+
+
+abstract class AbstractKeyedSet<K : Any, E : Any>(protected val keyer: (E) -> K) : KeyedSet<K, E> {
+	override fun contains(element: E): Boolean {
+		return containsKey(keyer(element))
+	}
+}
+
+abstract class AbstractMapKeyedSet<K : Any, E : Any, M : Map<K, E>>(keyer: (E) -> K, protected val map: M) : AbstractKeyedSet<K, E>(keyer) {
+	override val size: Int
+		get() = map.size
+	
+	override fun containsKey(key: K): Boolean {
+		return map.containsKey(key)
+	}
+	
+	override fun containsAll(elements: Collection<E>): Boolean {
+		return map.values.containsAll(elements)
+	}
+	
+	override fun isEmpty(): Boolean {
+		return map.isEmpty()
+	}
+	
+	override fun iterator(): Iterator<E> {
+		return map.values.iterator()
+	}
+	
+	override fun get(key: K): E? {
+		return map[key]
+	}
+}
+
+
+open class MapKeyedSet<K : Any, E : Any>(keyer: (E) -> K, map: Map<K, E>) : AbstractMapKeyedSet<K, E, Map<K, E>>(keyer, map)
+
+open class MapMutableKeyedSet<K : Any, E : Any>(keyer: (E) -> K, map: MutableMap<K, E>) : AbstractMapKeyedSet<K, E, MutableMap<K, E>>(keyer, map), MutableKeyedSet<K, E> {
 	override val size: Int
 		get() = map.size
 	
@@ -80,19 +127,19 @@ open class MapMutableKeyedSet<in K : Any, E : Any>(keyer: (E) -> K, private val 
 		return m
 	}
 	
-	override fun get(key: K): E? {
-		return map.remove(key)
-	}
-	
-	override fun doAdd(key: K, element: E): Boolean {
+	override fun add(element: E): Boolean {
+		val key = keyer(element)
 		val prev = map.put(key, element)
 		return prev == null || prev != element
 	}
 	
-	override fun doRemove(key: K): Boolean {
+	override fun remove(element: E): Boolean {
+		val key = keyer(element)
 		val prev = map.remove(key)
 		return prev != null
 	}
+	
+	override fun get(key: K): E? {
+		return map.remove(key)
+	}
 }
-
-open class HashMapMutableKeyedSet<in K : Any, E : Any>(keyer: (E) -> K) : MapMutableKeyedSet<K, E>(keyer, hashMapOf())
