@@ -1,7 +1,5 @@
 package ru.capjack.tool.utils.collections
 
-import ru.capjack.tool.lang.fill
-
 class ArrayQueue<E>(
 	initialCapacity: Int = 10
 ) : Queue<E>, AbstractList<E>() {
