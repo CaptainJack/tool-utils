@@ -9,6 +9,32 @@ interface KeyedSet<in K : Any, out E : Any> : Set<E> {
 interface MutableKeyedSet<in K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E>
 
 
+inline fun <K : Any, E : Any> MutableKeyedSet<K, E>.getOrAdd(key: K, element: (K) -> E): E {
+	var e = get(key)
+	if (e == null) {
+		e = element(key)
+		add(e)
+	}
+	return e
+}
+
+fun <K : Any, E : Any> Collection<E>.toKeySet(keyer: (E) -> K): KeyedSet<K, E> {
+	return MapKeyedSet(keyer, HashMap<K, E>(size).addElements(keyer, this))
+}
+
+fun <K : Any, E : Any> Collection<E>.toMutableKeySet(keyer: (E) -> K): MutableKeyedSet<K, E> {
+	return MapMutableKeyedSet(keyer, HashMap<K, E>(size).addElements(keyer, this))
+}
+
+fun <K : Any, E : Any> Iterable<E>.toKeySet(keyer: (E) -> K): KeyedSet<K, E> {
+	return MapKeyedSet(keyer, HashMap<K, E>().addElements(keyer, this))
+}
+
+fun <K : Any, E : Any> Iterable<E>.toMutableKeySet(keyer: (E) -> K): MutableKeyedSet<K, E> {
+	return MapMutableKeyedSet(keyer, HashMap<K, E>().addElements(keyer, this))
+}
+
+
 fun <K : Any, E : Any> emptyKeyedSet(): KeyedSet<K, E> {
 	@Suppress("UNCHECKED_CAST")
 	return EmptyKeyedSet as KeyedSet<K, E>
@@ -31,9 +57,12 @@ fun <K : Any, E : Any> mutableKeyedSetOf(keyer: (E) -> K, vararg elements: E): M
 }
 
 private fun <K : Any, E : Any> elementsToHashMap(keyer: (E) -> K, elements: Array<out E>): HashMap<K, E> {
-	return HashMap<K, E>(elements.size).also { m ->
-		elements.forEach { m[keyer(it)] = it }
-	}
+	return HashMap<K, E>(elements.size).also { m -> elements.forEach { m[keyer(it)] = it } }
+}
+
+private fun <K : Any, E : Any> MutableMap<K, E>.addElements(keyer: (E) -> K, elements: Iterable<E>): MutableMap<K, E> {
+	elements.forEach { set(keyer(it), it) }
+	return this
 }
 
 
