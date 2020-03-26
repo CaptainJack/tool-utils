@@ -1,5 +1,5 @@
 plugins {
-	kotlin("multiplatform") version "1.3.70"
+	kotlin("multiplatform") version "1.3.71"
 	id("nebula.release") version "14.1.0"
 	id("ru.capjack.bintray") version "1.0.0"
 	id("ru.capjack.logging") version "1.0.1"
@@ -15,7 +15,7 @@ repositories {
 
 kotlin {
 	jvm {
-		compilations.all { kotlinOptions.jvmTarget = "11" }
+		compilations.all { kotlinOptions.jvmTarget = "1.8" }
 	}
 	js {
 		compilations.all { kotlinOptions.sourceMap = false }
@@ -25,8 +25,8 @@ kotlin {
 	sourceSets {
 		get("commonMain").dependencies {
 			implementation(kotlin("stdlib-common"))
-			implementation("ru.capjack.tool:tool-lang:1.1.0")
-			implementation("ru.capjack.tool:tool-logging:1.0.1")
+			implementation("ru.capjack.tool:tool-lang:1.2.0")
+			implementation("ru.capjack.tool:tool-logging:1.1.0")
 		}
 		get("commonTest").dependencies {
 			implementation(kotlin("test-common"))
