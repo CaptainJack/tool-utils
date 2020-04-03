@@ -169,6 +169,6 @@ open class MapMutableKeyedSet<K : Any, E : Any>(keyer: (E) -> K, map: MutableMap
 	}
 	
 	override fun get(key: K): E? {
-		return map.remove(key)
+		return map[key]
 	}
 }
