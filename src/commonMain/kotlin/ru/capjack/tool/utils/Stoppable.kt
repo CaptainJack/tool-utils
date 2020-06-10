@@ -15,3 +15,11 @@ interface Stoppable {
 		}
 	}
 }
+
+class CompositeStoppable(private vararg val targets: Stoppable) : Stoppable {
+	constructor(targets: List<Stoppable>): this(*targets.toTypedArray())
+	
+	override fun stop() {
+		targets.forEach(Stoppable::stop)
+	}
+}

@@ -15,3 +15,11 @@ interface Closeable {
 		}
 	}
 }
+
+class CompositeCloseable(private vararg val targets: Closeable) : Closeable {
+	constructor(targets: List<Closeable>) : this(*targets.toTypedArray())
+	
+	override fun close() {
+		targets.forEach(Closeable::close)
+	}
+}
