@@ -6,7 +6,9 @@ interface KeyedSet<in K : Any, out E : Any> : Set<E> {
 	fun containsKey(key: K): Boolean
 }
 
-interface MutableKeyedSet<in K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E>
+interface MutableKeyedSet<in K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E> {
+	fun removeKey(key: K): E?
+}
 
 
 inline fun <K : Any, E : Any> MutableKeyedSet<K, E>.getOrAdd(key: K, element: (K) -> E): E {
@@ -117,6 +119,10 @@ open class MapMutableKeyedSet<K : Any, E : Any>(keyer: (E) -> K, map: MutableMap
 	
 	override fun containsKey(key: K): Boolean {
 		return map.containsKey(key)
+	}
+	
+	override fun removeKey(key: K): E? {
+		return map.remove(key)
 	}
 	
 	override fun containsAll(elements: Collection<E>): Boolean {
