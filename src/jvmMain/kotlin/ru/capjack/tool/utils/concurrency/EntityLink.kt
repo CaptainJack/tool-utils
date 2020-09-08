@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.concurrency
 
-interface EntityLink<E : Any> {
+interface EntityLink<out E : Any> {
 	val entity: E
 	
 	fun release()
