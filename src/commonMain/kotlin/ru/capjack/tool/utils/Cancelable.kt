@@ -13,13 +13,11 @@ interface Cancelable {
 				override fun cancel() = block.invoke()
 			}
 		}
-	}
-}
-
-class CompositeCancelable(private vararg val targets: Cancelable) : Cancelable {
-	constructor(targets: List<Cancelable>) : this(*targets.toTypedArray())
-	
-	override fun cancel() {
-		targets.forEach(Cancelable::cancel)
+		
+		fun composite(vararg targets: Cancelable): Cancelable {
+			return object : Cancelable {
+				override fun cancel() = targets.forEach(Cancelable::cancel)
+			}
+		}
 	}
 }
