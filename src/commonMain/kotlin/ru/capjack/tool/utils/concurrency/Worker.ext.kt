@@ -1,7 +1,7 @@
 package ru.capjack.tool.utils.concurrency
 
-import ru.capjack.tool.lang.alsoElse
-import ru.capjack.tool.lang.alsoIf
+import ru.capjack.tool.lang.alsoFalse
+import ru.capjack.tool.lang.alsoTrue
 
 inline fun Worker.withCapture(action: () -> Unit): Boolean {
 	if (capture()) {
@@ -17,19 +17,19 @@ inline fun Worker.withCapture(action: () -> Unit): Boolean {
 }
 
 inline fun Worker.access(action: () -> Unit): Boolean {
-	return accessible.alsoIf {
+	return accessible.alsoTrue {
 		protect(action)
 	}
 }
 
 inline fun Worker.accessOrExecute(crossinline action: () -> Unit) {
-	access(action).alsoElse {
+	access(action).alsoFalse {
 		execute { action() }
 	}
 }
 
 inline fun Worker.accessOrDefer(crossinline action: () -> Unit) {
-	access(action).alsoElse {
+	access(action).alsoFalse {
 		defer { action() }
 	}
 }

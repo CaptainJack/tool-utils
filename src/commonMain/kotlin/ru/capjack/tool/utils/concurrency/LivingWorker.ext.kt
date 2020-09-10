@@ -1,9 +1,9 @@
 package ru.capjack.tool.utils.concurrency
 
-import ru.capjack.tool.lang.alsoIf
+import ru.capjack.tool.lang.alsoTrue
 
 inline fun LivingWorker.accessOnLive(action: () -> Unit): Boolean {
-	return (alive && accessible).alsoIf {
+	return (alive && accessible).alsoTrue {
 		protect(action)
 	}
 }

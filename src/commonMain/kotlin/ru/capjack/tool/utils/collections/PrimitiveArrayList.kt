@@ -98,15 +98,15 @@ open class DoubleArrayList(array: DoubleArray) : AbstractPrimitiveArrayList<Doub
 		get() = array.size
 	
 	override fun contains(element: Double): Boolean {
-		return array.contains(element)
+		return array.any { it == element }
 	}
 	
 	override fun indexOf(element: Double): Int {
-		return array.indexOf(element)
+		return array.indexOfFirst { it == element }
 	}
 	
 	override fun lastIndexOf(element: Double): Int {
-		return array.lastIndexOf(element)
+		return array.indexOfLast { it == element }
 	}
 	
 	override fun iterator(): Iterator<Double> {
