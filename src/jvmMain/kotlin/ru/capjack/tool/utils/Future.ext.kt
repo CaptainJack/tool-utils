@@ -1,0 +1,7 @@
+package ru.capjack.tool.utils
+
+import java.util.concurrent.Future
+
+fun Future<*>.asCancelable() = Cancelable {
+	cancel(false)
+}

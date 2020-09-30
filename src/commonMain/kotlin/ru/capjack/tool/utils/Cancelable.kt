@@ -21,3 +21,18 @@ interface Cancelable {
 		}
 	}
 }
+
+class MediatorCancelable(private var target: Cancelable? = null) : Cancelable {
+	override fun cancel() {
+		target?.cancel()
+		target = null
+	}
+	
+	fun assign(target: Cancelable) {
+		this.target = target
+	}
+	
+	fun release() {
+		target = null
+	}
+}
