@@ -30,6 +30,9 @@ kotlin {
 			implementation(kotlin("test-annotations-common"))
 		}
 		
+		get("jvmMain").dependencies {
+			implementation(kotlin("reflect"))
+		}
 		get("jvmTest").dependencies {
 			implementation(kotlin("test-junit"))
 		}
