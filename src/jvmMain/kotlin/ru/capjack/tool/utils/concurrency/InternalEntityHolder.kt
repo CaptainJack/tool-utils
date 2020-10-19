@@ -9,7 +9,7 @@ abstract class InternalEntityHolder<I : Any, E : InternalEntity>(
 	lifetimeSeconds: Int
 ) : EntityHolder<I, E> {
 	
-	private val entities = ConcurrentHashMap<I, E>()
+	override val entities = ConcurrentHashMap<I, E>()
 	private val tryKillTimeout: Int = lifetimeSeconds * 1000 / 2
 	
 	init {
