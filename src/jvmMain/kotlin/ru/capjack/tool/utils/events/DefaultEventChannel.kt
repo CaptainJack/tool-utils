@@ -3,13 +3,18 @@ package ru.capjack.tool.utils.events
 import ru.capjack.tool.logging.ownLogger
 import ru.capjack.tool.utils.Cancelable
 import ru.capjack.tool.utils.assistant.Assistant
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 
-open class DefaultClearableEventChannel<E : Any>(private val emerger: EventTypeEmerger<E>, private val assistant: Assistant) : ClearableEventChannel<E> {
+class DefaultEventChannel<E : Any>(
+	private val assistant: Assistant,
+	private val emerger: EventTypeEmerger<E>,
+	private val observer: EventChannelObserver
+) : ClearableEventChannel<E> {
 	
-	constructor(type: KClass<E>, assistant: Assistant) : this(AutoEventTypeEmerger(type), assistant)
+	constructor(type: KClass<E>, assistant: Assistant) : this(assistant, AutoEventTypeEmerger(type), DummyEventChannelObserver)
 	
 	private val receiversMap = ConcurrentHashMap<KClass<out E>, Receivers>()
 	
@@ -25,25 +30,23 @@ open class DefaultClearableEventChannel<E : Any>(private val emerger: EventTypeE
 	
 	override fun clearEventReceivers() {
 		receiversMap.values.forEach { it.clear() }
-	}
-	
-	
-	override fun isEmpty(): Boolean {
-		return receiversMap.values.all { it.isEmpty() }
+		observer.observerReceiverCleared()
 	}
 	
 	private inner class Receivers {
-		private val list = CopyOnWriteArraySet<(Any) -> Unit>()
+		private val receivers = CopyOnWriteArraySet<(Any) -> Unit>()
 		
-		fun <T : Any> add(observer: (T) -> Unit): Cancelable {
+		fun <T : Any> add(receiver: (T) -> Unit): Cancelable {
 			@Suppress("UNCHECKED_CAST")
-			list.add(observer as (Any) -> Unit)
-			return Cancelable { list.remove(observer) }
+			if (receivers.add(receiver as (Any) -> Unit)) {
+				observer.observerReceiverAdded()
+			}
+			return ReceiverCanceler(receiver, receivers, observer)
 		}
 		
 		fun dispatch(event: Any) {
 			assistant.execute {
-				list.forEach {
+				receivers.forEach {
 					try {
 						it.invoke(event)
 					}
@@ -55,11 +58,22 @@ open class DefaultClearableEventChannel<E : Any>(private val emerger: EventTypeE
 		}
 		
 		fun clear() {
-			list.clear()
+			receivers.clear()
 		}
-		
-		fun isEmpty(): Boolean {
-			return list.isEmpty()
+	}
+	
+	private class ReceiverCanceler(
+		var receiver: Any,
+		var receivers: MutableSet<*>,
+		var observer: EventChannelObserver
+	) : Cancelable {
+		override fun cancel() {
+			if (receivers.remove(receiver)) {
+				observer.observerReceiverRemoved()
+				receiver = Unit
+				receivers = Collections.emptySet<Any>()
+				observer = DummyEventChannelObserver
+			}
 		}
 	}
 }

@@ -1,16 +1,16 @@
 package ru.capjack.tool.utils.keeper
 
 interface Keeper<I : Any, out E : Any> {
+	fun touch(id: I): E?
+	
 	fun get(id: I): E
 	
 	fun hold(id: I): E
 	
 	fun release(id: I)
-	
-	fun holdLink(id: I): Link<E> = LinkImpl(this, id, hold(id))
 }
 
-inline fun <I : Any, E : Any, R> Keeper<I, E>.use(id: I, block: (E) -> R): R {
+inline fun <I : Any, E : Any, R> Keeper<I, E>.capture(id: I, block: (E) -> R): R {
 	val entity = hold(id)
 	try {
 		return block(entity)
@@ -18,4 +18,8 @@ inline fun <I : Any, E : Any, R> Keeper<I, E>.use(id: I, block: (E) -> R): R {
 	finally {
 		release(id)
 	}
+}
+
+fun <I : Any, E : Any, R> Keeper<I, E>.holdLink(id: I): Link<E> {
+	return LinkImpl(this, id, hold(id))
 }

@@ -1,5 +1,7 @@
 package ru.capjack.tool.utils
 
+import kotlin.jvm.Volatile
+
 interface Cancelable {
 	fun cancel()
 	
@@ -22,7 +24,9 @@ interface Cancelable {
 	}
 }
 
-class MediatorCancelable(private var target: Cancelable? = null) : Cancelable {
+class MediatorCancelable(
+	@Volatile private var target: Cancelable? = null
+) : Cancelable {
 	override fun cancel() {
 		target?.cancel()
 		target = null

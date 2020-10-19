@@ -5,11 +5,11 @@ import ru.capjack.tool.utils.Cancelable
 import ru.capjack.tool.utils.ErrorCatcher
 import ru.capjack.tool.utils.InstantTime
 
-class WgsDelayableAssistant(
+class WgsTemporalAssistant(
 	errorCatcher: ErrorCatcher,
 	instantTime: InstantTime,
 	wgs: WindowOrWorkerGlobalScope
-) : WgsAssistant(errorCatcher, instantTime, wgs), DelayableAssistant {
+) : WgsAssistant(errorCatcher, instantTime, wgs), TemporalAssistant {
 	
 	override fun schedule(delayMillis: Int, code: () -> Unit): Cancelable {
 		return ScheduledTask(code, delayMillis, false)
