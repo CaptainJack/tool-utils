@@ -2,8 +2,6 @@ package ru.capjack.tool.utils.concurrency
 
 interface EntityHolder<I : Any, out E : Any> {
 	
-	val entities: Map<I, E>
-	
 	fun get(id: I): E
 	
 	fun hold(id: I): E
