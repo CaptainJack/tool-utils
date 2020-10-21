@@ -9,7 +9,7 @@ import java.util.function.BiFunction
 
 abstract class AbstractKeeper<I : Any, E : Any>(
 	private val assistant: TemporalAssistant,
-	private val lifetime: Int,
+	private val lifetime: Long,
 	private val lifetimeUnit: TimeUnit
 ) : Keeper<I, E> {
 	
@@ -82,7 +82,7 @@ abstract class AbstractKeeper<I : Any, E : Any>(
 				scheduleKill(id, entry)
 			}
 			else if (holds < 0) {
-				ownLogger.error("Excess entity releases (id: $id)")
+				ownLogger.warn("Excess entity releases (id: $id)")
 			}
 		}
 		entry
@@ -96,14 +96,15 @@ abstract class AbstractKeeper<I : Any, E : Any>(
 	}
 	
 	private val flushMapper = BiFunction { id: I, entry: Entry<E> ->
+		try {
+			flush(id, entry.entity)
+		}
+		catch (e: Throwable) {
+			ownLogger.error("Fail to flush entity (id: $id)", e)
+		}
+		
 		if (entry.holds == 0) {
 			entry.killer = Cancelable.DUMMY
-			try {
-				flush(id, entry.entity)
-			}
-			catch (e: Throwable) {
-				ownLogger.error("Fail to flush entity (id: $id)", e)
-			}
 			null
 		}
 		else entry
@@ -115,7 +116,7 @@ abstract class AbstractKeeper<I : Any, E : Any>(
 	
 	private val killMapper = BiFunction { id: I, entry: Entry<E>? ->
 		if (entry == null) {
-			ownLogger.error("Fill failed, the entity is missing (id: $id)")
+			ownLogger.error("Kill failed, the entity is missing (id: $id)")
 			null
 		}
 		else flushMapper.apply(id, entry)

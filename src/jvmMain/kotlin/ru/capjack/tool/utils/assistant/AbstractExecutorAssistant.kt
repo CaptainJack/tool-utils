@@ -9,10 +9,10 @@ abstract class AbstractExecutorAssistant<E : ExecutorService>(
 ) : Assistant {
 	
 	override fun execute(code: () -> Unit) {
-		executor.execute(code)
+		executor.execute(SafeCode(code))
 	}
 	
 	override fun charge(code: () -> Unit): Cancelable {
-		return executor.submit(code).asCancelable()
+		return executor.submit(SafeCode(code)).asCancelable()
 	}
 }

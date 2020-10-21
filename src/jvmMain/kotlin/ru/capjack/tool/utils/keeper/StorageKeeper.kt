@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 class StorageKeeper<I : Any, E : Any>(
 	assistant: TemporalAssistant,
-	lifetime: Int,
+	lifetime: Long,
 	lifetimeUnit: TimeUnit,
 	private val storage: Storage<I, E>
 ) : AbstractKeeper<I, E>(assistant, lifetime, lifetimeUnit) {

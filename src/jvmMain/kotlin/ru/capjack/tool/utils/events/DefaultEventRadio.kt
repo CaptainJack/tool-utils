@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 open class DefaultEventRadio<E : Any>(
 	type: KClass<E>,
 	private val assistant: TemporalAssistant,
-	private val waveDealerLifetime: Int,
+	private val waveDealerLifetime: Long,
 	private val waveDealerLifetimeUnit: TimeUnit
 ) : EventRadio<E> {
 	
@@ -48,7 +48,7 @@ open class DefaultEventRadio<E : Any>(
 		type: KClass<E>,
 		private val keyer: (E) -> K,
 		private val assistant: TemporalAssistant,
-		channelLifetime: Int,
+		channelLifetime: Long,
 		channelLifetimeUnit: TimeUnit
 	) : EventRadio.Wave<E, K>, Storage<K, EventChannel<E>> {
 		private val emerger = WaveEmerger(type)
