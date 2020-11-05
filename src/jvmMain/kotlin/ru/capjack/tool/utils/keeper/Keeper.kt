@@ -20,6 +20,6 @@ inline fun <I : Any, E : Any, R> Keeper<I, E>.capture(id: I, block: (E) -> R): R
 	}
 }
 
-fun <I : Any, E : Any, R> Keeper<I, E>.holdLink(id: I): Link<E> {
+fun <I : Any, E : Any> Keeper<I, E>.holdLink(id: I): Link<E> {
 	return LinkImpl(this, id, hold(id))
 }

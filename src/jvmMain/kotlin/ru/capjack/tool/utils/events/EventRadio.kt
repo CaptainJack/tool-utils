@@ -13,6 +13,10 @@ interface EventRadio<E : Any> : EventChannel<E> {
 	}
 }
 
+inline fun <E : Any, reified T : E, K : Any> EventRadio<E>.registerWave(noinline keyer: (T) -> K): EventRadio.Wave<T, K> {
+	return registerWave(T::class, keyer)
+}
+
 inline fun <reified T : Any, K : Any> EventRadio.Wave<in T, K>.receiveEvent(key: K, noinline receiver: (T) -> Unit): Cancelable {
 	return receiveEvent(key, T::class, receiver)
 }
