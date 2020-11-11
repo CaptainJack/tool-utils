@@ -50,7 +50,7 @@ open class DefaultEventRadio<E : Any>(
 		private val assistant: TemporalAssistant,
 		channelLifetime: Long,
 		channelLifetimeUnit: TimeUnit
-	) : EventRadio.Wave<E, K>, Storage<K, EventChannel<E>> {
+	) : EventRadio.Wave<E, K>, Storage<K, EventChannel<E>, EventChannel<E>> {
 		private val emerger = WaveEmerger(type)
 		
 		private val channels = StorageKeeper(assistant, channelLifetime, channelLifetimeUnit, this)
@@ -78,11 +78,12 @@ open class DefaultEventRadio<E : Any>(
 			return DefaultEventChannel(assistant, emerger, WaveChannelObserver(channels, id))
 		}
 		
-		override fun flushEntity(id: K, entity: EventChannel<E>) {}
+		override fun saveEntity(id: K, entity: EventChannel<E>) {}
 		
+		override fun killEntity(id: K, entity: EventChannel<E>) {}
 	}
 	
-	private class WaveChannelObserver<K : Any>(private val keeper: Keeper<K, *>, private val id: K) : EventChannelObserver {
+	private class WaveChannelObserver<K : Any>(private val keeper: Keeper<K, *, *>, private val id: K) : EventChannelObserver {
 		override fun observerReceiverAdded() {
 			keeper.hold(id)
 		}

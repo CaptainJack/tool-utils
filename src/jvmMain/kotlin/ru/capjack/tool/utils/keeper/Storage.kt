@@ -1,7 +1,9 @@
 package ru.capjack.tool.utils.keeper
 
-interface Storage<I : Any, E : Any> {
-	fun loadEntity(id: I): E
+interface Storage<I : Any, E : Any, M : E> {
+	fun loadEntity(id: I): M
 	
-	fun flushEntity(id: I, entity: E)
+	fun saveEntity(id: I, entity: M)
+	
+	fun killEntity(id: I, entity: E)
 }
