@@ -2,35 +2,44 @@ package ru.capjack.tool.utils.events
 
 import ru.capjack.tool.logging.ownLogger
 import ru.capjack.tool.utils.Cancelable
+import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
+import ru.capjack.tool.utils.worker.Worker
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 
 class DefaultEventChannel<E : Any>(
-	private val assistant: Assistant,
+	assistant: Assistant,
 	private val emerger: EventTypeEmerger<E>,
 	private val observer: EventChannelObserver
-) : ClearableEventChannel<E> {
+) : ClearableEventChannel<E>, ErrorHandler {
+	
+	private val worker = Worker(assistant, this)
+	private val receiversMap = ConcurrentHashMap<KClass<out E>, Receivers>()
 	
 	constructor(type: KClass<E>, assistant: Assistant) : this(assistant, AutoEventTypeEmerger(type), DummyEventChannelObserver)
-	
-	private val receiversMap = ConcurrentHashMap<KClass<out E>, Receivers>()
 	
 	override fun <T : E> receiveEvent(type: KClass<T>, receiver: (T) -> Unit): Cancelable {
 		return receiversMap.getOrPut(type, this::Receivers).add(receiver)
 	}
 	
 	override fun dispatchEvent(event: E) {
-		emerger.emerge(event::class).forEach {
-			receiversMap[it]?.dispatch(event)
+		worker.defer {
+			emerger.emerge(event::class).forEach {
+				receiversMap[it]?.dispatch(event)
+			}
 		}
 	}
 	
 	override fun clearEventReceivers() {
 		receiversMap.values.forEach { it.clear() }
 		observer.observerReceiverCleared()
+	}
+	
+	override fun handleError(error: Throwable) {
+		ownLogger.error("Error when dispatching events", error)
 	}
 	
 	private inner class Receivers {
@@ -45,15 +54,8 @@ class DefaultEventChannel<E : Any>(
 		}
 		
 		fun dispatch(event: Any) {
-			assistant.execute {
-				receivers.forEach {
-					try {
-						it.invoke(event)
-					}
-					catch (e: Throwable) {
-						ownLogger.error("Event observers error", e)
-					}
-				}
+			receivers.forEach {
+				worker.protect { it(event) }
 			}
 		}
 		
