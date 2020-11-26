@@ -100,7 +100,6 @@ open class DefaultEventRadio<E : Any>(
 		}
 		
 		private companion object {
-			@JvmStatic
 			private val empty = emptyArray<KClass<*>>()
 		}
 	}
