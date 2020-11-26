@@ -2,9 +2,10 @@ package ru.capjack.tool.utils.worker
 
 import ru.capjack.tool.lang.alsoFalse
 import ru.capjack.tool.lang.alsoTrue
+import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
 
-expect open class Worker(assistant: Assistant, errorHandler: (Throwable) -> Unit) {
+expect open class Worker(assistant: Assistant, errorHandler: ErrorHandler? = null) {
 	val working: Boolean
 	
 	val accessible: Boolean

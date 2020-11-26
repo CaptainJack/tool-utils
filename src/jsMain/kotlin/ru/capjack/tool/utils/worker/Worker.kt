@@ -2,12 +2,13 @@ package ru.capjack.tool.utils.worker
 
 import ru.capjack.tool.lang.asThrowable
 import ru.capjack.tool.logging.ownLogger
+import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.collections.ArrayQueue
 import ru.capjack.tool.utils.assistant.Assistant
 
 actual open class Worker actual constructor(
 	private val assistant: Assistant,
-	private val errorHandler: (Throwable) -> Unit
+	private val errorHandler: ErrorHandler?
 ) {
 	private var _working = false
 	private var queue = ArrayQueue<() -> Unit>()
@@ -69,7 +70,10 @@ actual open class Worker actual constructor(
 		else {
 			errorCatching = true
 			try {
-				errorHandler.invoke(error)
+				if (errorHandler == null)
+					ownLogger.error("Uncaught error", error)
+				else
+					errorHandler.handleError(error)
 			}
 			catch (e: Throwable) {
 				ownLogger.error("Nested error on catching", asThrowable(e))

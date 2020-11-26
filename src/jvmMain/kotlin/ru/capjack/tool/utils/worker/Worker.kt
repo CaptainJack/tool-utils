@@ -1,24 +1,22 @@
 package ru.capjack.tool.utils.worker
 
 import ru.capjack.tool.logging.ownLogger
-import ru.capjack.tool.utils.collections.ArrayQueue
+import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
+import ru.capjack.tool.utils.collections.ArrayQueue
 
 actual open class Worker actual constructor(
 	private val assistant: Assistant,
-	private val errorHandler: (Throwable) -> Unit
+	private val errorHandler: ErrorHandler?
 ) {
 	private val lock = Any()
 	private val queue = ArrayQueue<() -> Unit>()
 	private val nextTaskFn = ::nextTask
 	private var errorCatching = false
 	
-	@Volatile
-	private var workingThread: Long = -1
-	@Volatile
-	private var _working = false
-	@Volatile
-	private var _relaxed = true
+	@Volatile private var workingThread: Long = -1
+	@Volatile private var _working = false
+	@Volatile private var _relaxed = true
 	
 	actual val working: Boolean
 		get() = _working
@@ -90,7 +88,10 @@ actual open class Worker actual constructor(
 		else {
 			errorCatching = true
 			try {
-				errorHandler.invoke(error)
+				if (errorHandler == null)
+					ownLogger.error("Uncaught error", error)
+				else
+					errorHandler.handleError(error)
 			}
 			catch (e: Throwable) {
 				ownLogger.error("Nested error on catching", e)

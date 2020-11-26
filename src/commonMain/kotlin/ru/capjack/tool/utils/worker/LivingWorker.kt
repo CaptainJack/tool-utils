@@ -1,10 +1,11 @@
 package ru.capjack.tool.utils.worker
 
 import ru.capjack.tool.lang.alsoTrue
+import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
 import kotlin.jvm.Volatile
 
-class LivingWorker(assistant: Assistant, errorHandler: (Throwable) -> Unit) : Worker(assistant, errorHandler) {
+class LivingWorker(assistant: Assistant, errorHandler: ErrorHandler? = null) : Worker(assistant, errorHandler) {
 	@Volatile
 	private var _alive = true
 	
