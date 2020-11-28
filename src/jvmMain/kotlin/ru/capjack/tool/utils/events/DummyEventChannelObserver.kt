@@ -1,9 +1,7 @@
 package ru.capjack.tool.utils.events
 
 object DummyEventChannelObserver : EventChannelObserver {
-	override fun observerReceiverAdded() {}
+	override fun observeReceiverAdded() {}
 	
-	override fun observerReceiverRemoved() {}
-	
-	override fun observerReceiverCleared() {}
+	override fun observeReceiverRemoved() {}
 }

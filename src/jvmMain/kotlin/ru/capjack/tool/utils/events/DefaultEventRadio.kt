@@ -84,11 +84,11 @@ open class DefaultEventRadio<E : Any>(
 	}
 	
 	private class WaveChannelObserver<K : Any>(private val keeper: Keeper<K, *, *>, private val id: K) : EventChannelObserver {
-		override fun observerReceiverAdded() {
+		override fun observeReceiverAdded() {
 			keeper.hold(id)
 		}
 		
-		override fun observerReceiverRemoved() {
+		override fun observeReceiverRemoved() {
 			keeper.release(id)
 		}
 	}

@@ -1,5 +1,6 @@
 package ru.capjack.tool.utils.events
 
+import ru.capjack.tool.lang.EMPTY_FUNCTION_1
 import ru.capjack.tool.logging.ownLogger
 import ru.capjack.tool.utils.Cancelable
 import ru.capjack.tool.utils.ErrorHandler
@@ -7,6 +8,7 @@ import ru.capjack.tool.utils.assistant.Assistant
 import ru.capjack.tool.utils.worker.Worker
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 
@@ -34,8 +36,9 @@ class DefaultEventChannel<E : Any>(
 	}
 	
 	override fun clearEventReceivers() {
-		receiversMap.values.forEach { it.clear() }
-		observer.observerReceiverCleared()
+		worker.defer {
+			receiversMap.values.forEach { it.clear() }
+		}
 	}
 	
 	override fun handleError(error: Throwable) {
@@ -43,39 +46,43 @@ class DefaultEventChannel<E : Any>(
 	}
 	
 	private inner class Receivers {
-		private val receivers = CopyOnWriteArraySet<(Any) -> Unit>()
+		private val receivers = CopyOnWriteArraySet<Receiver>()
 		
 		fun <T : Any> add(receiver: (T) -> Unit): Cancelable {
 			@Suppress("UNCHECKED_CAST")
-			if (receivers.add(receiver as (Any) -> Unit)) {
-				observer.observerReceiverAdded()
-			}
-			return ReceiverCanceler(receiver, receivers, observer)
+			val r = Receiver(receiver as (Any) -> Unit, receivers, observer)
+			receivers.add(r)
+			observer.observeReceiverAdded()
+			return r
 		}
 		
 		fun dispatch(event: Any) {
 			receivers.forEach {
-				worker.protect { it(event) }
+				worker.protect { it.receive(event) }
 			}
 		}
 		
 		fun clear() {
-			receivers.clear()
+			receivers.forEach { it.cancel() }
 		}
 	}
 	
-	private class ReceiverCanceler(
-		var receiver: Any,
-		var receivers: MutableSet<*>,
-		var observer: EventChannelObserver
+	private class Receiver(
+		@Volatile private var receiver: (Any) -> Unit,
+		@Volatile private var receivers: MutableSet<Receiver>,
+		@Volatile private var observer: EventChannelObserver
 	) : Cancelable {
 		override fun cancel() {
-			if (receivers.remove(receiver)) {
-				observer.observerReceiverRemoved()
-				receiver = Unit
-				receivers = Collections.emptySet<Any>()
+			if (receivers.remove(this)) {
+				observer.observeReceiverRemoved()
+				receiver = EMPTY_FUNCTION_1
+				receivers = Collections.emptySet()
 				observer = DummyEventChannelObserver
 			}
+		}
+		
+		fun receive(event: Any) {
+			receiver.invoke(event)
 		}
 	}
 }
