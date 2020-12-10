@@ -65,11 +65,6 @@ class TestArrayObjectPool {
 		pool.clear()
 		
 		
-		println("creates $creates")
-		println("disposes $disposes")
-		println("uses $uses")
-		println("clears $clears")
-		
 		val expectedUses = tasks * times
 		
 		assertEquals(creates.get(), disposes.get(), "Creates and disposes")
