@@ -1,12 +1,14 @@
 package ru.capjack.tool.utils.collections
 
-interface KeyedSet<in K : Any, out E : Any> : Set<E> {
+interface KeyedSet<K : Any, out E : Any> : Set<E> {
+	val keys: Set<K>
+	
 	operator fun get(key: K): E?
 	
 	fun containsKey(key: K): Boolean
 }
 
-interface MutableKeyedSet<in K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E> {
+interface MutableKeyedSet<K : Any, E : Any> : MutableCollection<E>, KeyedSet<K, E> {
 	fun removeKey(key: K): E?
 }
 
@@ -70,6 +72,7 @@ private fun <K : Any, E : Any> MutableMap<K, E>.addElements(keyer: (E) -> K, ele
 
 private object EmptyKeyedSet : KeyedSet<Nothing, Nothing> {
 	override val size: Int get() = 0
+	override val keys: Set<Nothing> get() = emptySet()
 	override fun isEmpty(): Boolean = true
 	override fun get(key: Nothing): Nothing? = null
 	override fun containsKey(key: Nothing): Boolean = false
@@ -88,6 +91,9 @@ abstract class AbstractKeyedSet<K : Any, E : Any>(protected val keyer: (E) -> K)
 abstract class AbstractMapKeyedSet<K : Any, E : Any, M : Map<K, E>>(keyer: (E) -> K, protected val map: M) : AbstractKeyedSet<K, E>(keyer) {
 	override val size: Int
 		get() = map.size
+	
+	override val keys: Set<K>
+		get() = map.keys
 	
 	override fun containsKey(key: K): Boolean {
 		return map.containsKey(key)
