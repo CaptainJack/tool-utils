@@ -22,7 +22,7 @@ kotlin {
 	
 	sourceSets {
 		get("commonMain").dependencies {
-			implementation("ru.capjack.tool:tool-lang:1.6.1")
+			implementation("ru.capjack.tool:tool-lang:1.7.0")
 			implementation("ru.capjack.tool:tool-logging:1.2.2")
 		}
 		get("commonTest").dependencies {
