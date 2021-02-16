@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils.worker
 
-import ru.capjack.tool.lang.alsoIf
+import ru.capjack.tool.lang.alsoTrue
 import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
 import kotlin.jvm.Volatile
@@ -26,7 +26,7 @@ class LivingWorker(assistant: Assistant, errorHandler: ErrorHandler? = null) : W
 
 
 inline fun LivingWorker.accessOnLive(action: () -> Unit): Boolean {
-	return (alive && accessible).alsoIf {
+	return (alive && accessible).alsoTrue {
 		protect(action)
 	}
 }

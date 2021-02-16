@@ -1,6 +1,6 @@
 package ru.capjack.tool.utils
 
-import ru.capjack.tool.lang.alsoIf
+import ru.capjack.tool.lang.alsoTrue
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
@@ -17,13 +17,13 @@ class Sluice(opened: Boolean = true) {
 	
 	fun open(): Boolean {
 		return lock.writeLock().withLock {
-			alsoIf(!opened) { opened = true }
+			alsoTrue(!opened) { opened = true }
 		}
 	}
 	
 	fun close(): Boolean {
 		return lock.writeLock().withLock {
-			alsoIf(opened) { opened = false }
+			alsoTrue(opened) { opened = false }
 		}
 	}
 	
