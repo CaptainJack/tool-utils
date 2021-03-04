@@ -60,7 +60,7 @@ class ArrayQueue<E>(
 	
 	private fun ensureArrayCapacity(min: Int) {
 		if (min > capacity) {
-			var newCapacity = capacity + capacity.shl(1)
+			var newCapacity = capacity + capacity.shr(1)
 			if (newCapacity < min) {
 				newCapacity = min
 			}
