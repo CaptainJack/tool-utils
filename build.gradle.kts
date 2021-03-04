@@ -1,5 +1,5 @@
 plugins {
-	kotlin("multiplatform") version "1.4.30"
+	kotlin("multiplatform") version "1.4.31"
 	id("nebula.release") version "15.3.1"
 	id("ru.capjack.bintray") version "1.0.0"
 }
