@@ -1,5 +1,5 @@
 plugins {
-	kotlin("multiplatform") version "1.4.32"
+	kotlin("multiplatform") version "1.5.0"
 	`maven-publish`
 	id("nebula.release") version "15.3.1"
 	id("ru.capjack.reposit") version "0.3.0"
