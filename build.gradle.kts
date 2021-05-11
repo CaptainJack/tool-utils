@@ -1,8 +1,6 @@
 plugins {
 	kotlin("multiplatform") version "1.5.0"
-	`maven-publish`
-	id("nebula.release") version "15.3.1"
-	id("ru.capjack.reposit") version "0.3.0"
+	id("ru.capjack.publisher") version "0.1.0"
 }
 
 group = "ru.capjack.tool"
@@ -10,12 +8,6 @@ group = "ru.capjack.tool"
 repositories {
 	mavenCentral()
 	mavenCapjack()
-}
-
-publishing {
-	repositories {
-		mavenCapjackPublic(reposit)
-	}
 }
 
 kotlin {
@@ -28,23 +20,15 @@ kotlin {
 	
 	sourceSets {
 		get("commonMain").dependencies {
-			implementation("ru.capjack.tool:tool-lang:1.9.0")
-			implementation("ru.capjack.tool:tool-logging:1.4.0")
+			implementation("ru.capjack.tool:tool-lang:1.11.1")
+			implementation("ru.capjack.tool:tool-logging:1.5.0")
 		}
 		get("commonTest").dependencies {
-			implementation(kotlin("test-common"))
-			implementation(kotlin("test-annotations-common"))
+			implementation(kotlin("test"))
 		}
 		
 		get("jvmMain").dependencies {
 			implementation(kotlin("reflect"))
-		}
-		get("jvmTest").dependencies {
-			implementation(kotlin("test-junit"))
-		}
-		
-		get("jsTest").dependencies {
-			implementation(kotlin("test-js"))
 		}
 	}
 }
