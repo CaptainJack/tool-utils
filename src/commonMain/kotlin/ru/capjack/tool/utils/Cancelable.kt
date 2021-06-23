@@ -40,3 +40,21 @@ class MediatorCancelable(
 		target = null
 	}
 }
+
+class MutableCompositeCancelable(targets: Collection<Cancelable>) : Cancelable {
+	private val targets = targets.toMutableSet()
+	
+	constructor(vararg targets: Cancelable): this(targets.toList())
+	
+	override fun cancel() {
+		targets.forEach(Cancelable::cancel)
+	}
+	
+	fun add(target: Cancelable) {
+		targets.add(target)
+	}
+	
+	fun remove(target: Cancelable) {
+		targets.remove(target)
+	}
+}
