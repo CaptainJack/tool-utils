@@ -21,3 +21,9 @@ inline fun <T, R> Iterable<T>.letFirstNotNull(transform: (T) -> R?): R? {
 	}
 	return null
 }
+
+inline fun <reified T> MutableCollection<T>.clearAndEach(action: (T) -> Unit) {
+	val array = toTypedArray()
+	clear()
+	array.forEach(action)
+}

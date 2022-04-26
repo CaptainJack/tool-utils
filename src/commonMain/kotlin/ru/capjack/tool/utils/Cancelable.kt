@@ -41,8 +41,18 @@ class MediatorCancelable(
 	}
 }
 
+class CompositeCancelable(targets: Collection<Cancelable>) : Cancelable {
+	private val targets = targets.toHashSet()
+	
+	constructor(vararg targets: Cancelable) : this(targets.toList())
+	
+	override fun cancel() {
+		targets.forEach(Cancelable::cancel)
+	}
+}
+
 class MutableCompositeCancelable(targets: Collection<Cancelable>) : Cancelable {
-	private val targets = targets.toMutableSet()
+	private val targets = targets.toHashSet()
 	
 	constructor(vararg targets: Cancelable): this(targets.toList())
 	
@@ -53,7 +63,6 @@ class MutableCompositeCancelable(targets: Collection<Cancelable>) : Cancelable {
 	fun add(target: Cancelable) {
 		targets.add(target)
 	}
-	
 	fun remove(target: Cancelable) {
 		targets.remove(target)
 	}

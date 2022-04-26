@@ -3,6 +3,9 @@ package ru.capjack.tool.utils.worker
 import ru.capjack.tool.lang.alsoTrue
 import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import kotlin.jvm.Volatile
 
 class LivingWorker(assistant: Assistant, errorHandler: ErrorHandler? = null) : Worker(assistant, errorHandler) {
@@ -130,6 +133,29 @@ inline fun LivingWorker.accessOrDeferOnLive(onAccess: () -> Unit, crossinline on
 					onExecute()
 				}
 			}
+		}
+	}
+}
+
+suspend inline fun <R> LivingWorker.suspendExecuteOnLive(crossinline task: () -> R): R {
+	return suspendCoroutine { continuation ->
+		if (alive) {
+			execute {
+				if (alive) {
+					val result = try {
+						continuation.resume(task())
+					}
+					catch (e: Throwable) {
+						continuation.resumeWithException(e)
+					}
+				}
+				else {
+					continuation.resumeWithException(IllegalStateException("Worker is die"))
+				}
+			}
+		}
+		else {
+			continuation.resumeWithException(IllegalStateException("Worker is die"))
 		}
 	}
 }
