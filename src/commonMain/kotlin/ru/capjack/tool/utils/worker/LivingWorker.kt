@@ -142,7 +142,7 @@ suspend inline fun <R> LivingWorker.suspendExecuteOnLive(crossinline task: () ->
 		if (alive) {
 			execute {
 				if (alive) {
-					val result = try {
+					try {
 						continuation.resume(task())
 					}
 					catch (e: Throwable) {
