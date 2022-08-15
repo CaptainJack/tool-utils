@@ -42,7 +42,7 @@ class MediatorCancelable(
 }
 
 class CompositeCancelable(targets: Collection<Cancelable>) : Cancelable {
-	private val targets = targets.toHashSet()
+	private val targets = targets.toList()
 	
 	constructor(vararg targets: Cancelable) : this(targets.toList())
 	
