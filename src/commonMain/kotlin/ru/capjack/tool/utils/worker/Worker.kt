@@ -4,6 +4,9 @@ import ru.capjack.tool.lang.alsoFalse
 import ru.capjack.tool.lang.alsoTrue
 import ru.capjack.tool.utils.ErrorHandler
 import ru.capjack.tool.utils.assistant.Assistant
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 expect open class Worker(assistant: Assistant, errorHandler: ErrorHandler? = null) {
 	val working: Boolean
@@ -52,5 +55,18 @@ inline fun Worker.accessOrExecute(crossinline action: () -> Unit) {
 inline fun Worker.accessOrDefer(crossinline action: () -> Unit) {
 	access(action).alsoFalse {
 		defer { action() }
+	}
+}
+
+suspend inline fun <R> Worker.suspendExecute(crossinline task: () -> R): R {
+	return suspendCoroutine { continuation ->
+		execute {
+			try {
+				continuation.resume(task())
+			}
+			catch (e: Throwable) {
+				continuation.resumeWithException(e)
+			}
+		}
 	}
 }
