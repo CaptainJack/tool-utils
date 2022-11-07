@@ -9,7 +9,6 @@ import ru.capjack.tool.utils.worker.Worker
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 
 class DefaultEventChannel<E : Any>(
@@ -46,7 +45,7 @@ class DefaultEventChannel<E : Any>(
 	}
 	
 	private inner class Receivers {
-		private val receivers = CopyOnWriteArraySet<Receiver>()
+		private val receivers = CopyOnWriteArrayList<Receiver>()
 		
 		fun <T : Any> add(receiver: (T) -> Unit): Cancelable {
 			@Suppress("UNCHECKED_CAST")
@@ -63,13 +62,13 @@ class DefaultEventChannel<E : Any>(
 		}
 		
 		fun clear() {
-			receivers.forEach { it.cancel() }
+			receivers.toList().forEach { it.cancel() }
 		}
 	}
 	
 	private class Receiver(
 		@Volatile private var receiver: (Any) -> Unit,
-		@Volatile private var receivers: MutableSet<Receiver>,
+		@Volatile private var receivers: MutableCollection<Receiver>,
 		@Volatile private var observer: EventChannelObserver
 	) : Cancelable {
 		override fun cancel() {
