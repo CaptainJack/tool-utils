@@ -57,7 +57,7 @@ abstract class AbstractKeeper<I : Any, E : Any, M : E>(
 	
 	private val holdMapper = BiFunction { id: I, entry: Entry<M>? ->
 		entry?.also {
-			if (++it.holds == 1) {
+			if (synchronized(it) { ++it.holds } == 1) {
 				it.killer.cancel()
 				it.killer = Cancelable.DUMMY
 			}
@@ -79,7 +79,7 @@ abstract class AbstractKeeper<I : Any, E : Any, M : E>(
 			ownLogger.error("Entity is not held (id: $id)")
 		}
 		else {
-			val holds = --entry.holds
+			val holds = synchronized(entry) { --entry.holds }
 			if (holds == 0) {
 				scheduleKill(id, entry)
 			}
@@ -118,10 +118,7 @@ abstract class AbstractKeeper<I : Any, E : Any, M : E>(
 	}
 	
 	private val killMapper = BiFunction { id: I, entry: Entry<M>? ->
-		if (entry == null) {
-			ownLogger.error("Kill failed, the entity is missing (id: $id)")
-			null
-		}
+		if (entry == null) null
 		else flushMapper.apply(id, entry)
 	}
 	
