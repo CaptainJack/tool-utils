@@ -38,6 +38,15 @@ fun <K : Any, E : Any> Iterable<E>.toMutableKeySet(keyer: (E) -> K): MutableKeye
 	return MapMutableKeyedSet(keyer, HashMap<K, E>().addElements(keyer, this))
 }
 
+fun <K : Any, E : Any> Array<E>.toKeySet(keyer: (E) -> K): KeyedSet<K, E> {
+	return MapKeyedSet(keyer, HashMap<K, E>(size).addElements(keyer, this))
+}
+
+fun <K : Any, E : Any> Array<E>.toMutableKeySet(keyer: (E) -> K): MutableKeyedSet<K, E> {
+	return MapMutableKeyedSet(keyer, HashMap<K, E>(size).addElements(keyer, this))
+}
+
+
 
 fun <K : Any, E : Any> emptyKeyedSet(): KeyedSet<K, E> {
 	@Suppress("UNCHECKED_CAST")
@@ -69,6 +78,39 @@ private fun <K : Any, E : Any> MutableMap<K, E>.addElements(keyer: (E) -> K, ele
 	return this
 }
 
+
+
+fun <K : Any, E : Any, R: Any> Collection<E>.mapKeySet(keyer: (R) -> K, mapper: (E) -> R): KeyedSet<K, R> {
+	return MapKeyedSet(keyer, HashMap<K, R>(size).addElements(keyer, map(mapper)))
+}
+
+fun <K : Any, E : Any, R: Any> Collection<E>.mapMutableKeySet(keyer: (R) -> K, mapper: (E) -> R): MutableKeyedSet<K, R> {
+	return MapMutableKeyedSet(keyer, HashMap<K, R>(size).addElements(keyer, map(mapper)))
+}
+
+
+fun <K : Any, E : Any, R: Any> Iterable<E>.mapKeySet(keyer: (R) -> K, mapper: (E) -> R): KeyedSet<K, R> {
+	return MapKeyedSet(keyer, HashMap<K, R>().addElements(keyer, map(mapper)))
+}
+
+fun <K : Any, E : Any, R: Any> Iterable<E>.mapMutableKeySet(keyer: (R) -> K, mapper: (E) -> R): MutableKeyedSet<K, R> {
+	return MapMutableKeyedSet(keyer, HashMap<K, R>().addElements(keyer, map(mapper)))
+}
+
+
+fun <K : Any, E : Any, R: Any> Array<E>.mapKeySet(keyer: (R) -> K, mapper: (E) -> R): KeyedSet<K, R> {
+	return MapKeyedSet(keyer, HashMap<K, R>(size).addElements(keyer, map(mapper)))
+}
+
+fun <K : Any, E : Any, R: Any> Array<E>.mapMutableKeySet(keyer: (R) -> K, mapper: (E) -> R): MutableKeyedSet<K, R> {
+	return MapMutableKeyedSet(keyer, HashMap<K, R>(size).addElements(keyer, map(mapper)))
+}
+
+
+private fun <K : Any, E : Any> MutableMap<K, E>.addElements(keyer: (E) -> K, elements: Array<E>): MutableMap<K, E> {
+	elements.forEach { set(keyer(it), it) }
+	return this
+}
 
 private object EmptyKeyedSet : KeyedSet<Nothing, Nothing> {
 	override val size: Int get() = 0
