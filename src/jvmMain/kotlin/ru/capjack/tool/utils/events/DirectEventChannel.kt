@@ -2,14 +2,11 @@ package ru.capjack.tool.utils.events
 
 import ru.capjack.tool.lang.EMPTY_FUNCTION_1
 import ru.capjack.tool.utils.Cancelable
-import ru.capjack.tool.utils.events.AutoEventTypeEmerger
-import ru.capjack.tool.utils.events.ClearableEventChannel
-import ru.capjack.tool.utils.events.EventTypeEmerger
 import java.util.*
 import kotlin.reflect.KClass
 
 class DirectEventChannel<E : Any>(
-	type: KClass<E>
+	type: KClass<E>,
 ) : ClearableEventChannel<E> {
 	
 	private val emerger: EventTypeEmerger<E> = AutoEventTypeEmerger(type)
