@@ -3,8 +3,8 @@ package ru.capjack.tool.utils.random
 import ru.capjack.tool.utils.Supplier
 
 class RandomByWeightSupplier<T>(
-	private val values: List<T>,
-	private val weights: WeightRandomizer
+	val values: List<T>,
+	val weights: WeightRandomizer
 ) : Supplier<T> {
 	
 	constructor(values: List<T>, weights: IntArray) : this(values, FixedWeightRandomizer(weights))

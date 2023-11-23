@@ -63,7 +63,7 @@ actual open class Worker actual constructor(
 		}
 	}
 	
-	fun catchError(error: Throwable) {
+	actual fun catchError(error: Throwable) {
 		if (errorCatching) {
 			ownLogger.error("Nested error", error)
 		}

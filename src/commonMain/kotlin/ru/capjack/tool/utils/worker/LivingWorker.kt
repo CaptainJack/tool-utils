@@ -146,6 +146,7 @@ suspend inline fun <R> LivingWorker.suspendExecuteOnLive(crossinline task: () ->
 						continuation.resume(task())
 					}
 					catch (e: Throwable) {
+						catchError(e)
 						continuation.resumeWithException(e)
 					}
 				}

@@ -3,7 +3,7 @@ package ru.capjack.tool.utils.random
 import ru.capjack.tool.utils.Supplier
 
 open class DynamicWeightRandomizer(
-	private val weights: List<Supplier<Int>>
+	val weights: List<Supplier<Int>>
 ) : WeightRandomizer() {
 	
 	override var totalWeight: Int = 0

@@ -1,7 +1,7 @@
 package ru.capjack.tool.utils.random
 
 class FixedWeightRandomizer(
-	private var weights: IntArray
+	var weights: IntArray
 ) : WeightRandomizer() {
 	
 	constructor(weights: List<Int>) : this(weights.toIntArray())

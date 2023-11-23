@@ -23,6 +23,8 @@ expect open class Worker(assistant: Assistant, errorHandler: ErrorHandler? = nul
 	
 	fun release()
 	
+	fun catchError(error: Throwable)
+	
 	inline fun protect(task: () -> Unit)
 }
 
@@ -65,6 +67,7 @@ suspend inline fun <R> Worker.suspendExecute(crossinline task: () -> R): R {
 				continuation.resume(task())
 			}
 			catch (e: Throwable) {
+				catchError(e)
 				continuation.resumeWithException(e)
 			}
 		}
